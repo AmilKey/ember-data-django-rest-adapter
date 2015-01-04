@@ -5,8 +5,8 @@
 // ==========================================================================
 
 
-// v1.0.6
-// c1dc30b (2014-07-27 00:05:25 -0400)
+// v1.0.7
+// 6a34938 (2014-11-18 13:13:02 -0500)
 
 
 (function() {
@@ -212,8 +212,7 @@ DS.DjangoRESTSerializer = DS.RESTSerializer.extend({
 
     var key = relationship.key,
     json_key = this.keyForRelationship(key, "hasMany"),
-    relationshipType = DS.RelationshipChange.determineRelationshipType(
-      record.constructor, relationship);
+    relationshipType = DS.RelationshipChange ? DS.RelationshipChange.determineRelationshipType(record.constructor, relationship) : record.constructor.determineRelationshipType(relationship);
 
       if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
         json[json_key] = record.get(key).mapBy('id');
@@ -491,7 +490,11 @@ DS.DjangoDateTransform = DS.Transform.extend({
   },
   serialize: function(date) {
     if (date instanceof Date && date.toString() !== 'Invalid Date') {
-      return date.toISOString().slice(0, 10);
+      year = date.getFullYear();
+      month = date.getMonth() + 1;  // getMonth is 0-indexed
+      month = month < 10 ? '0' + month : month;
+      day = date.getDate();
+      return year + '-' + month + '-' + day;
     } else {
       return null;
     }
@@ -543,7 +546,7 @@ Ember.Application.initializer({
 
 (function() {
 
-var VERSION = "1.0.6";
+var VERSION = "1.0.7";
 
 DS.DjangoRESTSerializer.VERSION = VERSION;
 DS.DjangoRESTAdapter.VERSION = VERSION;
